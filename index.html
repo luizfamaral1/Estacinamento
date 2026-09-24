@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#103f88">
+  <meta name="description" content="Controle de estacionamento universitário: cadastros, escalas e movimentações da portaria.">
+  <title>Estacionamento universitário | Portaria</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+  <noscript><p class="sem-script">Ative o JavaScript para utilizar o estacionamento.</p></noscript>
+
+  <section id="loginTela" class="login-tela" aria-labelledby="tituloLogin">
+    <div class="login-apresentacao">
+      <a class="marca" href="#"><span class="marca-simbolo" aria-hidden="true">P</span><span>Estacionamento<span class="marca-subtitulo">Universitário</span></span></a>
+      <div class="login-mensagem">
+        <p class="sobretitulo">CONTROLE DA PORTARIA</p>
+        <h1 id="tituloLogin">Cada vaga.<br>Cada dia.<br>Tudo no lugar.</h1>
+        <p>Organize o acesso de professores e funcionários e acompanhe a disponibilidade do estacionamento.</p>
+        <div class="ilustracao-patio" aria-hidden="true"><span>01</span><span class="carro-desenho">▰</span><span>03</span><span>04</span><span class="carro-desenho">▰</span><span>06</span></div>
+      </div>
+      <p class="login-rodape">Projeto Integrado II · ADS · 2026</p>
+    </div>
+    <div class="login-formulario">
+      <form id="formLogin" class="login-box" novalidate>
+        <span class="etiqueta">Acesso do operador</span>
+        <h2>Bem-vindo à portaria</h2>
+        <p class="texto-suave">Entre para acompanhar as vagas e registrar os acessos.</p>
+        <label for="usuario">Usuário</label>
+        <input id="usuario" name="usuario" type="text" autocomplete="username" maxlength="60" required placeholder="Seu usuário">
+        <label for="senha">Senha</label>
+        <div class="campo-senha"><input id="senha" name="senha" type="password" autocomplete="current-password" maxlength="100" required placeholder="Sua senha"><button id="mostrarSenha" type="button" class="botao-texto" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button></div>
+        <p id="erroLogin" class="erro-formulario" role="alert"></p>
+        <button id="btnEntrar" class="botao primario largura-total" type="submit">Entrar no sistema <span aria-hidden="true">→</span></button>
+        <div class="acesso-demo"><strong>Demonstração do frontend</strong><p>Usuário <code>admin</code> · Senha <code>1234</code></p><small>Use dados fictícios. Os registros ficam neste navegador.</small></div>
+      </form>
+    </div>
+  </section>
+
+  <div id="problemaDados" class="alerta-dados" role="alert" hidden><p id="mensagemDados"></p><div class="acoes"><button id="btnBackup" class="botao secundario" type="button">Baixar cópia dos dados</button><button id="btnRestaurar" class="botao perigo" type="button">Restaurar demonstração</button></div></div>
+
+  <div id="sistema" class="sistema" hidden>
+    <aside class="barra-lateral">
+      <a class="marca" href="#painel"><span class="marca-simbolo" aria-hidden="true">P</span><span>Estacionamento<span class="marca-subtitulo">Universitário</span></span></a>
+      <p class="nav-rotulo">ÁREA DO OPERADOR</p>
+      <nav aria-label="Navegação principal">
+        <button type="button" class="nav-item ativo" data-view="painel" aria-current="page"><span aria-hidden="true">▦</span> Visão geral</button>
+        <button type="button" class="nav-item" data-view="cadastros"><span aria-hidden="true">♙</span> Cadastros</button>
+        <button type="button" class="nav-item" data-view="escalas"><span aria-hidden="true">▤</span> Escala semanal</button>
+        <button type="button" class="nav-item" data-view="historico"><span aria-hidden="true">◷</span> Movimentações</button>
+      </nav>
+      <div class="lateral-info"><span class="ponto"></span> Operação local<small>Ambiente de demonstração</small></div>
+      <div class="operador"><span class="avatar">OP</span><div><strong>Operador</strong><small>Portaria universitária</small></div><button id="btnSair" class="sair" type="button" title="Sair do sistema" aria-label="Sair do sistema">↗</button></div>
+    </aside>
+
+    <div class="area-principal">
+      <header class="cabecalho"><span>CONTROLE DE ACESSO</span><div><span class="etiqueta demo">Demonstração</span><time id="dataAtual"></time></div></header>
+      <main id="conteudo" tabindex="-1">
+        <section id="painel" class="pagina" aria-labelledby="tituloPainel">
+          <div class="titulo-pagina"><div><p class="sobretitulo">ESTACIONAMENTO UNIVERSITÁRIO</p><h1 id="tituloPainel">Visão geral</h1><p>Acompanhe o pátio e organize cada chegada.</p></div><button class="botao primario" type="button" data-action="nova-entrada"><span aria-hidden="true">＋</span> Registrar entrada</button></div>
+
+          <div class="cards" aria-label="Resumo do estacionamento">
+            <article class="card"><div class="card-topo"><h2>Total de vagas</h2><span aria-hidden="true" class="mini-icone">P</span></div><strong id="total">12</strong><p>Capacidade do estacionamento</p></article>
+            <article class="card"><div class="card-topo"><h2>Ocupadas</h2><span class="mini-icone azul" aria-hidden="true">↙</span></div><strong id="ocupadas">0</strong><p>Veículos presentes no pátio</p></article>
+            <article class="card"><div class="card-topo"><h2>Livres no pátio</h2><span class="mini-icone verde" aria-hidden="true">✓</span></div><strong id="livres">12</strong><p>Inclui reservas não ocupadas</p></article>
+            <article class="card"><div class="card-topo"><h2>Para rodízio</h2><span class="mini-icone ambar" aria-hidden="true">⇄</span></div><strong id="rotativas">0</strong><p>Livres e sem reserva hoje</p></article>
+          </div>
+
+          <section class="painel-superficie consulta" aria-labelledby="tituloConsulta">
+            <div><h2 id="tituloConsulta">Quem está chegando?</h2><p>Consulte a placa para verificar o cadastro e a autorização de hoje.</p></div>
+            <form id="formPesquisa" class="form-pesquisa" role="search"><label class="sr-only" for="campoPesquisa">Placa do veículo</label><input id="campoPesquisa" name="placa" class="placa-input" type="search" autocomplete="off" maxlength="9" placeholder="Ex.: VIC-1234" aria-controls="resultado"><button id="btnPesquisar" class="botao primario" type="submit">Consultar placa <span aria-hidden="true">→</span></button></form>
+            <div id="resultado" class="resultado" role="status" aria-live="polite" hidden></div>
+          </section>
+
+          <section class="painel-superficie mapa" aria-labelledby="tituloMapa">
+            <div class="titulo-secao"><div><h2 id="tituloMapa">Mapa do estacionamento</h2><p id="resumoMapa">Selecione uma vaga para registrar uma entrada ou saída.</p></div><span id="taxaOcupacao" class="etiqueta">0% de ocupação</span></div>
+            <div class="legenda"><span><i class="livre-dot"></i> Livre para rodízio</span><span><i class="reservada-dot"></i> Reservada hoje</span><span><i class="ocupada-dot"></i> Ocupada</span></div>
+            <div id="vagas" class="vagas"></div>
+            <div class="mapa-rodape"><span aria-hidden="true">→</span><p>Reservas seguem a escala do dia. A saída libera o espaço sem apagar o registro.</p></div>
+          </section>
+        </section>
+
+        <section id="cadastros" class="pagina" aria-labelledby="tituloCadastros" hidden>
+          <div class="titulo-pagina"><div><p class="sobretitulo">PESSOAS E VEÍCULOS</p><h1 id="tituloCadastros">Cadastros</h1><p>Vincule cada condutor aos seus veículos e dias de acesso.</p></div><button id="btnNovoCadastro" class="botao primario" type="button">＋ Novo condutor</button></div>
+          <section class="painel-superficie">
+            <div class="barra-tabela"><div><h2>Condutores cadastrados</h2><p id="contagemCadastros"></p></div><div><label class="sr-only" for="filtroCadastros">Buscar nome ou placa</label><input id="filtroCadastros" type="search" placeholder="Buscar nome ou placa" maxlength="80"></div></div>
+            <div class="tabela-container" role="region" aria-label="Tabela de condutores" tabindex="0"><table><thead><tr><th scope="col">Condutor</th><th scope="col">Veículos</th><th scope="col">Escala</th><th scope="col">Situação hoje</th><th scope="col">Ações</th></tr></thead><tbody id="usuarios"></tbody></table></div>
+          </section>
+        </section>
+
+        <section id="escalas" class="pagina" aria-labelledby="tituloEscalas" hidden>
+          <div class="titulo-pagina"><div><p class="sobretitulo">PLANEJAMENTO DO ESPAÇO</p><h1 id="tituloEscalas">Escala semanal</h1><p>Uma mesma vaga pode atender pessoas diferentes em dias distintos.</p></div></div>
+          <section class="painel-superficie">
+            <div class="barra-tabela"><div><h2>Reservas por vaga</h2><p>O dia atual está destacado. Edite os dias no cadastro do condutor.</p></div></div>
+            <div class="tabela-container" role="region" aria-label="Escala de reservas da semana" tabindex="0"><table class="tabela-escala"><thead id="cabecalhoEscalas"></thead><tbody id="corpoEscalas"></tbody></table></div>
+            <p class="nota-secao">“Rodízio” indica ausência de reserva nesse dia, não a ocupação física. Entradas são autorizadas apenas nos dias cadastrados para o condutor.</p>
+          </section>
+        </section>
+
+        <section id="historico" class="pagina" aria-labelledby="tituloHistorico" hidden>
+          <div class="titulo-pagina"><div><p class="sobretitulo">REGISTROS DA PORTARIA</p><h1 id="tituloHistorico">Movimentações</h1><p>Consulte entradas, saídas e o tempo de permanência.</p></div><button id="btnLiberar" class="botao perigo-suave" type="button">Registrar saída de todos</button></div>
+          <section class="painel-superficie">
+            <div class="barra-tabela filtros-historico"><div><label for="filtroHistorico">Buscar condutor ou placa</label><input id="filtroHistorico" type="search" maxlength="80" placeholder="Nome ou placa"></div><div><label for="statusHistorico">Situação</label><select id="statusHistorico"><option value="todos">Todas</option><option value="abertos">No pátio</option><option value="encerrados">Saídas registradas</option></select></div></div>
+            <div class="tabela-container" role="region" aria-label="Tabela de movimentações" tabindex="0"><table><thead><tr><th scope="col">Condutor / placa</th><th scope="col">Vaga</th><th scope="col">Entrada</th><th scope="col">Saída</th><th scope="col">Permanência</th><th scope="col">Operador</th><th scope="col">Ação</th></tr></thead><tbody id="registros"></tbody></table></div>
+            <div class="paginacao"><span id="resumoRegistros"></span><div class="acoes"><button id="paginaAnterior" class="botao secundario pequeno" type="button">Anterior</button><button id="proximaPagina" class="botao secundario pequeno" type="button">Próxima</button></div></div>
+          </section>
+        </section>
+        <footer class="rodape"><span>Estacionamento universitário</span><span>Horários de Brasília · <span id="estadoSalvamento">Dados locais</span></span></footer>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="entradaDialog" class="modal" aria-labelledby="tituloEntrada">
+    <form id="formEntrada" novalidate>
+      <div class="modal-topo"><div><p class="sobretitulo">CONTROLE DE ACESSO</p><h2 id="tituloEntrada">Registrar entrada</h2></div><button class="fechar-modal" type="button" data-close="entradaDialog" aria-label="Fechar registro de entrada">×</button></div>
+      <div class="modal-conteudo"><label for="placaEntrada">Placa do veículo</label><input id="placaEntrada" class="placa-input" type="text" required maxlength="9" placeholder="ABC-1234 ou ABC1D23" autocomplete="off" aria-describedby="autorizacaoEntrada">
+        <div id="autorizacaoEntrada" class="mensagem-entrada" role="status" aria-live="polite"></div>
+        <label for="vagaEntrada">Vaga de destino</label><select id="vagaEntrada" required></select><p class="texto-ajuda">A vaga da escala tem prioridade. Vagas sem reserva hoje podem ser usadas para realocação.</p>
+        <p id="erroEntrada" class="erro-formulario" role="alert"></p>
+      </div>
+      <div class="modal-acoes"><button class="botao secundario" type="button" data-close="entradaDialog">Cancelar</button><button id="confirmarEntrada" class="botao primario" type="submit">Confirmar entrada</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="cadastroDialog" class="modal modal-largo" aria-labelledby="tituloCadastro">
+    <form id="formCadastro" novalidate>
+      <div class="modal-topo"><div><p class="sobretitulo">CADASTRO E ESCALA</p><h2 id="tituloCadastro">Novo condutor</h2></div><button class="fechar-modal" type="button" data-close="cadastroDialog" aria-label="Fechar cadastro">×</button></div>
+      <div class="modal-conteudo">
+        <fieldset><legend>Dados do condutor</legend><div class="form-grid"><div class="campo-amplo"><label for="nomeCondutor">Nome completo <span aria-hidden="true">*</span></label><input id="nomeCondutor" type="text" required minlength="2" maxlength="80" autocomplete="off"></div><div><label for="cargoCondutor">Cargo <span aria-hidden="true">*</span></label><select id="cargoCondutor" required><option value="">Selecione</option><option>Professor(a)</option><option>Funcionário(a)</option></select></div><div><label for="cpfCondutor">CPF <span class="opcional">opcional na demonstração</span></label><input id="cpfCondutor" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00" autocomplete="off"></div></div></fieldset>
+        <fieldset><legend>Veículos</legend><p class="texto-ajuda">Cadastre ao menos uma placa. É permitida uma entrada ativa por condutor.</p><div id="veiculosFormulario"></div><button id="btnAdicionarVeiculo" class="botao secundario pequeno" type="button">＋ Adicionar veículo</button></fieldset>
+        <fieldset><legend>Dias de acesso e reserva</legend><p class="texto-ajuda">Escolha uma vaga para cada dia autorizado. “Sem acesso” não reserva uma vaga.</p><div id="diasFormulario" class="dias-formulario"></div></fieldset>
+        <p id="erroCadastro" class="erro-formulario" role="alert"></p>
+      </div>
+      <div class="modal-acoes"><span class="texto-ajuda">* Campos obrigatórios</span><button class="botao secundario" type="button" data-close="cadastroDialog">Cancelar</button><button id="salvarCadastro" class="botao primario" type="submit">Salvar cadastro</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="confirmarDialog" class="modal modal-curto" aria-labelledby="tituloConfirmar" aria-describedby="textoConfirmar">
+    <form id="formConfirmar"><div class="modal-topo"><h2 id="tituloConfirmar">Confirmar ação</h2><button class="fechar-modal" type="button" data-close="confirmarDialog" aria-label="Fechar confirmação">×</button></div><div class="modal-conteudo"><p id="textoConfirmar" class="texto-confirmacao"></p><p id="erroConfirmar" class="erro-formulario" role="alert"></p></div><div class="modal-acoes"><button id="cancelarConfirmacao" class="botao secundario" type="button" data-close="confirmarDialog" autofocus>Cancelar</button><button id="aceitarConfirmacao" class="botao perigo" type="submit">Confirmar</button></div></form>
+  </dialog>
+  <div id="notificacao" class="notificacao" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
